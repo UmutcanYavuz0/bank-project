@@ -3,10 +3,12 @@ package kutuphane.kutuphaneprojesi.Services;
 import kutuphane.kutuphaneprojesi.Dto.DtoBook;
 import kutuphane.kutuphaneprojesi.Entities.Book;
 import kutuphane.kutuphaneprojesi.Entities.BorrowedBooks;
+import kutuphane.kutuphaneprojesi.Entities.ReadingHistory;
 import kutuphane.kutuphaneprojesi.Entities.User;
 import kutuphane.kutuphaneprojesi.Jwt.JwtService;
 import kutuphane.kutuphaneprojesi.Repositories.BarrowBookRepository;
 import kutuphane.kutuphaneprojesi.Repositories.BookRepository;
+import kutuphane.kutuphaneprojesi.Repositories.ReadingHistroyRepository;
 import kutuphane.kutuphaneprojesi.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,8 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private BarrowBookRepository barrowBookRepository;
+    @Autowired
+    private ReadingHistroyRepository  readingHistroyRepository;
 
     public ArrayList<DtoBook> getBooks(){
 
@@ -41,6 +45,10 @@ public class UserService {
 
     public String barrowBook(String username,String bookToBarroedId) {
 
+        ArrayList<String>mybooks=getMyBooks(username);
+        if(mybooks.size()>=3){
+            return "en fazla 3 adet kitap alabilrisiniz";
+        }
         //user varsa,alıcağı kitap varsa ve stockta varsa al
 
         boolean uservarmi=userRepository.existsByUsername(username);
@@ -70,6 +78,7 @@ public class UserService {
         Optional<User> userdb=userRepository.findByUsername(username);
         User user=userdb.get();
         barrowBookRepository.add(String.valueOf(user.getId()),bookToBarroedId);
+        readingHistroyRepository.add(String.valueOf(user.getId()),bookToBarroedId);
         return "kitap başarılı bir şekilde ödünç alındı";
 
 
@@ -101,6 +110,14 @@ public class UserService {
         Optional<User>userdb=userRepository.findByUsername(username);
         return String.valueOf(userdb.get().getId());
     }
+
+    public Collection<ReadingHistory> getreadinghistory(String username){
+        String id =findIdByUsername(username);
+        return readingHistroyRepository.getbyId(id);
+
+    }
+
+
 
 
 

@@ -4,6 +4,7 @@ import kutuphane.kutuphaneprojesi.Dto.DtoBook;
 
 import kutuphane.kutuphaneprojesi.Entities.Book;
 import kutuphane.kutuphaneprojesi.Entities.BorrowedBooks;
+import kutuphane.kutuphaneprojesi.Entities.ReadingHistory;
 import kutuphane.kutuphaneprojesi.Entities.User;
 import kutuphane.kutuphaneprojesi.Services.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,5 +40,11 @@ public class AdminController {
     public Collection<BorrowedBooks> barrowedBooks(){
         return adminService.getBorrowedBooks();
     }
+    @GetMapping("/get/allreadinghistory")
+    public Collection<ReadingHistory> getreadinghistory(){
+        return adminService.getallhistory();
+    }
+
+    //admin istediği kişinin historysini görsün
 
 }
