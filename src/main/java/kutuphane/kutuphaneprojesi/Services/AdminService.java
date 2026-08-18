@@ -55,10 +55,14 @@ public class AdminService {
     public Collection<BorrowedBooks> getBorrowedBooks(){
         return barrowBookRepository.getBorrowdBooks();
     }
+
     public Collection<ReadingHistory> getallhistory(){
         return readingHistroyRepository.getAll();
     }
 
+    public Collection<ReadingHistory> getreadinghistory(String userid){
+        return readingHistroyRepository.getreadinghistory(userid);
+    }
 
 
 

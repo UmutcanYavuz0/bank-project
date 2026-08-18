@@ -25,6 +25,9 @@ public interface ReadingHistroyRepository extends JpaRepository<ReadingHistory,L
     @Query(value = "select * from readinghistory where userid=:id",nativeQuery = true)
     Collection<ReadingHistory> getbyId(String id);
 
+    @Query(value = "select * from borrowed_books where userid=:userid",nativeQuery = true)
+    Collection<ReadingHistory>getreadinghistory(String userid);
+
 
 
 }

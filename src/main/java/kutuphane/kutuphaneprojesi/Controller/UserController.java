@@ -59,13 +59,17 @@ public class UserController {
     @PostMapping("/user/return/book")
     public String returnbook(@RequestParam String id,
                            @RequestHeader("Authorization") String header){
+        String username=getusernameFromToken(header);
+        return userService.returnBook(username,id);
+
+    }
+    private String getusernameFromToken(String header){
         String token = header;
         if (header != null && header.startsWith("Bearer ")) {
             token = header.substring(7).trim(); // İlk 7 karakteri ("Bearer ") atar ve boşlukları siler
         }
         String username = jwtService.extractUsername(token);
-        return userService.returnBook(username,id);
-
+        return username;
     }
 
 
