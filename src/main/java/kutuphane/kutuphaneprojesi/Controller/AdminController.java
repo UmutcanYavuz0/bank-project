@@ -32,7 +32,7 @@ public class AdminController {
     public String deleteBook(@RequestParam String id){
         return adminService.deleteBook(id);
     }
-    @GetMapping("admin/get/books")
+    @GetMapping("/admin/get/books")
     public Collection<Book> getBooks(){
         return adminService.getBooks();
     }

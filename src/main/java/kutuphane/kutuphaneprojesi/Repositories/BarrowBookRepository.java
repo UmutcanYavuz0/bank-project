@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @Repository
 public interface BarrowBookRepository extends JpaRepository<BorrowedBooks,Long> {
@@ -25,5 +26,17 @@ public interface BarrowBookRepository extends JpaRepository<BorrowedBooks,Long> 
     @Query(value = "insert into borrowed_books(userId,bookId) values(:userId,:bookId)",nativeQuery = true)
     void add(String userId,String bookId);
 
+
+    //kullanıcı id si ve kitap id si alır satırı döner
+    @Query(value = "select * from borrowed_books where userid=:userid and bookid=:bookid",nativeQuery = true)
+    Optional<BorrowedBooks> getBorrowdBookswithuseridandid(String userid, String bookid);
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "delete from borrowed_books where userid=:userid and bookid=:bookid",nativeQuery = true)
+    void delete(String userid,String bookid);
+
+//delete from borrowed_books where id=
 
 }

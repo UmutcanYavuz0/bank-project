@@ -6,7 +6,8 @@ import kutuphane.kutuphaneprojesi.Services.LoginService;
 import kutuphane.kutuphaneprojesi.Services.RegisterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-@CrossOrigin("*")
+
+@CrossOrigin(origins = "*")
 @RestController
 public class Login_Register {
     @Autowired

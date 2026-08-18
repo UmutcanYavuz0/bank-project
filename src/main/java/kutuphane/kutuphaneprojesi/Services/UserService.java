@@ -36,6 +36,8 @@ public class UserService {
         ArrayList<DtoBook>list=new ArrayList<>();
        for(Book book:dbbooks){
            DtoBook dtoBook=new DtoBook();
+
+           dtoBook.setId(String.valueOf(book.getId()));
            dtoBook.setBookName(book.getName());
            list.add(dtoBook);
        }
@@ -45,6 +47,11 @@ public class UserService {
 
     public String barrowBook(String username,String bookToBarroedId) {
 
+        try{
+            Integer.parseInt(bookToBarroedId);
+        }catch (NumberFormatException e){
+            return "format hatası ";
+        }
         ArrayList<String>mybooks=getMyBooks(username);
         if(mybooks.size()>=3){
             return "en fazla 3 adet kitap alabilrisiniz";
@@ -114,6 +121,25 @@ public class UserService {
     public Collection<ReadingHistory> getreadinghistory(String username){
         String id =findIdByUsername(username);
         return readingHistroyRepository.getbyId(id);
+
+    }
+
+    public String returnBook(String username,String bookid){
+        String id=findIdByUsername(username);
+        //bu kitap varsa
+        if(!bookRepository.existsById(Long.valueOf(bookid))){
+            return "böyle bir kitap yok";
+        }
+
+        //bu kitap kulanıcıda varsa
+        Optional<BorrowedBooks>bookdb= barrowBookRepository.getBorrowdBookswithuseridandid(id,bookid);
+        if(bookdb.isEmpty()){
+            return "böyle bir kitapa dahip değilsin";
+        }
+        //sonra o kullanıcıdan sil
+        barrowBookRepository.delete(id,bookid);
+        return "kitap iade edildi";
+
 
     }
 

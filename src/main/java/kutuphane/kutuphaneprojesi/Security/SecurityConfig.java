@@ -23,15 +23,26 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // REST API için CSRF kapatılır
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT stateless'tır, session tutulmaz
                 .authorizeHttpRequests(auth -> auth
-                                .anyRequest().permitAll()
-                        /*.requestMatchers("/login").permitAll()
+
+                       /* .requestMatchers("/login").permitAll()
                         .requestMatchers("/register").permitAll()
-                        .requestMatchers("/add/book").permitAll()
-                        .requestMatchers("/delete/book").permitAll()
-                        .requestMatchers("/admin/get/books").permitAll()
-                        .requestMatchers("/yanlızcaadmin").hasRole("ADMIN")// Login/Register herkese açık
-                        .requestMatchers("/yanlızcauser").hasRole("USER")
-                        .anyRequest().authenticated() */              // Diğer her yer token ister
+
+                        .requestMatchers("/admin/get/users").hasRole("ADMIN")
+                        .requestMatchers("/add/book").hasRole("ADMIN")
+                        .requestMatchers("/delete/book").hasRole("ADMIN")
+                        .requestMatchers("/admin/get/books").hasRole("ADMIN")
+                        .requestMatchers("/get/barrowedbooks").hasRole("ADMIN")
+                        .requestMatchers("/get/allreadinghistory").hasRole("ADMIN")
+
+                        .requestMatchers("/user/get/books").hasRole("USER")
+                        .requestMatchers("/user/barrow/book").hasRole("USER")
+                        .requestMatchers("/get/mybooks").hasRole("USER")
+                        .requestMatchers("/get/readinghistory").hasRole("USER")
+                        .requestMatchers("/user/return/book").hasRole("USER")
+                        .anyRequest().authenticated()  */
+
+
+                        .anyRequest().permitAll()// Diğer her yer token ister
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
