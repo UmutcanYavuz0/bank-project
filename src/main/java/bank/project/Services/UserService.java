@@ -2,13 +2,15 @@ package bank.project.Services;
 
 import bank.project.Dto.AccountNoAndBalance;
 import bank.project.Dto.AccountNoAndIban;
+import bank.project.Dto.DtoMoneyTransefer;
 import bank.project.Entities.Transaction;
+import bank.project.Entities.User;
 import bank.project.Entities.UserAccount;
 import bank.project.Repositories.TransactionsRepository;
 import bank.project.Repositories.UserAccountRepository;
 import bank.project.Repositories.UsersRepository;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -51,9 +53,11 @@ public class UserService {
         return "";
     }
 
-    public ArrayList<AccountNoAndBalance> showbalance(){
+    public ArrayList<AccountNoAndBalance> showbalance(String username){
         //her hesabı ve hesaplardaki parayı göster
-        int userid=0;
+        User user=getuser(username).get();
+        int userid=(int)user.getId();
+
         Collection<UserAccount>dbAccounts=userAccountRepository.showbalance(userid);
         ArrayList<AccountNoAndBalance>list=new ArrayList<>();
 
@@ -71,16 +75,18 @@ public class UserService {
 
     }
 
-    public Collection<Transaction> showTransactions(){
+    public Collection<Transaction> showTransactions(String usernmae){
         //show transactions
-        int userid=0;
+        User user=getuser(usernmae).get();
+        int userid=(int)user.getId();
         return transactionsRepository.getTransactions(userid);
 
     }
 
-    public ArrayList<AccountNoAndIban> showAccountnoAndIban(){
+    public ArrayList<AccountNoAndIban> showAccountnoAndIban(String username){
         //hesaplar ve ibanları gösterir
-        int userid=0;
+        User user=getuser(username).get();
+        int userid=(int)user.getId();
         ArrayList<AccountNoAndIban>list=new ArrayList<>();
         for(UserAccount accountdb:userAccountRepository.getAccount(userid)){
 
@@ -94,9 +100,11 @@ public class UserService {
         return list;
     }
 
-    public String openNewAccount(){
+    public String openNewAccount(String username){
         //open new account
-        int userid=0;
+        User user=getuser(username).get();
+        int userid=(int)user.getId();
+
         int numberofaccount=1+userAccountRepository.getAccount(userid).toArray().length;
         String accountno="accountno "+numberofaccount;
         String iban="iban "+numberofaccount;
@@ -106,10 +114,12 @@ public class UserService {
 
     }
 
-    public String closeAccount(){
+    public String closeAccount(String username,String accountno){
         //close account if it exists if there is money send another account if exists else money is gone
-        int userid=0;
-        String accountno="";
+        User user=getuser(username).get();
+        int userid=(int)user.getId();
+
+
 
         if(!userAccountRepository.existsByAccountno(userid,accountno)){
             return "there is already no such an account";
@@ -133,18 +143,20 @@ public class UserService {
         return "";
     }
 
-    public String moneytransefer(){
+    public String moneytransefer(String username, DtoMoneyTransefer dtoMoneyTransefer){
         //transfer money from one account to another
         //if sender have account and money and receiver exists and have account then send the money
         //decrase money from this account and increase money from receiver account
-        int userid=0;
 
-        String senderaccountno="";
-        int receiverid=0;
-        String receiveraccountno="";
-        int amount=0;
+        User user=getuser(username).get();
+        int userid=(int)user.getId();
 
-        String receiverusername="";
+
+        String senderaccountno=dtoMoneyTransefer.getSenderaccountno();
+        int receiverid= dtoMoneyTransefer.getReceiverid();
+        String receiveraccountno=dtoMoneyTransefer.getReceiveraccountno();
+        int amount= dtoMoneyTransefer.getAmount();
+        String receiverusername=dtoMoneyTransefer.getReceiverusername();
 
         //looking sender has a account?
         if(!userAccountRepository.existsByAccountno(userid,senderaccountno)){
@@ -170,7 +182,9 @@ public class UserService {
             userAccountRepository.changeMoney(userid,senderaccountno,mybalance-amount);
 
             //add the money to receiver
-            userAccountRepository.changeMoney(receiverid,receiveraccountno,amount);
+            Optional<UserAccount>receviverdb=userAccountRepository.getexistsByAccountno(receiverid,receiveraccountno);
+            int receiverbalance=receviverdb.get().getBalance();
+            userAccountRepository.changeMoney(receiverid,receiveraccountno,receiverbalance+amount);
 
 
             return "the money sended ";
@@ -180,4 +194,9 @@ public class UserService {
 
 
     }
+
+    private Optional<User> getuser(String username){
+        return  usersRepository.getUserbyName(username);
+    }
+
 }
