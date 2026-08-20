@@ -13,16 +13,7 @@ import java.util.Collection;
 @Repository
 public interface TransactionsRepository extends JpaRepository<Transaction,Long> {
 
-    @Transactional
-    @Modifying
-    @Query(value = "insert into transactions(senderid,senderaccountno,receiverid,receiveraccountno,amount,createdat" +
-            ")values(:senderid,:senderaccountno,:receiverid,:receiveraccountno,:amount,NOW()" +
-            ")",nativeQuery = true)
-    void add(int senderid,String senderaccountno,int receiverid,String receiveraccountno,int amount);
 
-
-    @Query(value = "select * from transactions where userid=:userid",nativeQuery = true)
-    Collection<Transaction> getTransactions(int userid);
-
-
+    @Query(value = "select * from transactions where senderid=:userid or receiverid=:userid",nativeQuery = true)
+    Collection<Transaction>getTransactions(String userid);
 }

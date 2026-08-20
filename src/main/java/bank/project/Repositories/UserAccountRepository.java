@@ -13,34 +13,38 @@ import java.util.Optional;
 @Repository
 public interface UserAccountRepository extends JpaRepository<UserAccount,Long> {
 
-    @Transactional
-    @Modifying
-    @Query(value = "insert into usseraccount(userid,accountno,iban,balance)values(:userid,:accountno,:iban,:balance)",nativeQuery = true)
-    void add(int userid,String accountno,String iban,int balance);
-
 
     @Query(value = "select * from useraccount where userid=:userid",nativeQuery = true)
-    Collection<UserAccount> getAccount(int userid);
-
+    Collection<UserAccount> getBalance(String userid);
 
     @Query(value = "select * from useraccount where userid=:userid",nativeQuery = true)
-    Collection<UserAccount> showbalance(int userid);
+    Collection<UserAccount>getAccounts(String userid);
 
-    @Query(value = "select * from useraccount where userid=:userid and accountno=:accountno",nativeQuery = true)
-    boolean existsByAccountno(int userid,String accountno);
+    boolean existsByUseridAndAccountno(String userid,String accountno);
 
-    @Query(value = "select * from useraccount where userid=:userid and accountno=:accountno",nativeQuery = true)
-    Optional<UserAccount> getexistsByAccountno(int userid, String accountno);
+
+    Optional<UserAccount>findByUseridAndAccountno(String userid,String accountno);
 
     @Transactional
     @Modifying
     @Query(value = "delete from useraccount where userid=:userid and accountno=:accountno",nativeQuery = true)
-    void closeAccount(int userid, String accountno);
+    void closeAccount(String userid,String accountno);
 
     @Transactional
     @Modifying
     @Query(value = "update useraccount set balance=:newbalance where userid=:userid and accountno=:accountno",nativeQuery = true)
-    void changeMoney(int userid,String accountno, int newbalance);
+    void updateBalance(String newbalance,String userid,String accountno);
+
+    //bu var olan hesaplar arasından yanlızca birini döner
+    Optional<UserAccount> findFirstByUserid(String username);
+
+    boolean existsByUserid(String userid);
+
+
+
+
+
+
 
 
 

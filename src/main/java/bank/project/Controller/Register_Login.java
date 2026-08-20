@@ -1,8 +1,7 @@
 package bank.project.Controller;
 
 import bank.project.Dto.DtoUser;
-import bank.project.Services.LoginService;
-import bank.project.Services.RegisterService;
+import bank.project.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,20 +9,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class Register_Login {
+
+
     @Autowired
-    private LoginService loginService;
-    @Autowired
-    private RegisterService registerService;
+    private UserService userService;
 
     @PostMapping("/login")
-    public void login(@RequestBody DtoUser user){
-         loginService.login(user.getUsername(), user.getPassword());
+    public String login(@RequestBody DtoUser user){
+         return userService.login(user);
     }
 
     @PostMapping("/register")
     public String register(@RequestBody DtoUser user){
 
-        return registerService.register(user.getUsername(), user.getPassword());
+        return userService.register(user);
 
     }
 

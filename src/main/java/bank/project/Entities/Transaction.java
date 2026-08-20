@@ -28,4 +28,12 @@ public class Transaction {
     @Column(name = "createdat")
     private LocalDateTime createdAt;
 
+    public Transaction(int senderid, String senderaccountno, int receiverid, String receiveraccountno, int amount, LocalDateTime createdAt) {
+        this.senderid = senderid;
+        this.senderaccountno = senderaccountno;
+        this.receiverid = receiverid;
+        this.receiveraccountno = receiveraccountno;
+        this.amount = amount;
+        this.createdAt = createdAt;
+    }
 }

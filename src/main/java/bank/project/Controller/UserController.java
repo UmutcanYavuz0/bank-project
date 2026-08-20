@@ -46,6 +46,14 @@ public class UserController {
 
     }
 
+    @PostMapping("/user/add/money")
+    public String addmoney(@RequestHeader("Authorization") String header,
+                           @RequestParam String money,
+                           @RequestParam String accountno){
+        String username=getusernameFromToken(header);
+        return userService.addMoney(username,money,accountno);
+    }
+
     @PostMapping("/user/open/newaccount")
     public String openNewAccount(@RequestHeader("Authorization") String header){
         String username=getusernameFromToken(header);
@@ -61,10 +69,11 @@ public class UserController {
     }
     @PostMapping("/transfer/money")
     public String moneytransefer(@RequestHeader("Authorization") String header,
-                               DtoMoneyTransefer dtoMoneyTransefer){
+                              @RequestBody DtoMoneyTransefer dtoMoneyTransefer){
         String username=getusernameFromToken(header);
 
         return userService.moneytransefer(username,dtoMoneyTransefer);
+
     }
 
     private String getusernameFromToken(String header){
