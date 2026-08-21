@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş & Kayıt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body { background-color: #f0f4f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .auth-card { background: #ffffff; width: 100%; max-width: 440px; border-radius: 20px; padding: 40px 35px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.07); }
+        .auth-header { text-align: center; margin-bottom: 25px; }
+        .auth-header h2 { font-size: 28px; font-weight: 600; color: #333333; margin-bottom: 6px; }
+        .auth-header p { font-size: 13px; color: #777777; }
+        .input-group { position: relative; margin-bottom: 18px; width: 100%; }
+        .input-group label { position: absolute; top: -9px; left: 12px; font-size: 11px; font-weight: 500; background: #ffffff; color: #0077ff; padding: 0 6px; }
+        .input-group input { width: 100%; padding: 12px 14px; border-radius: 10px; font-size: 13px; border: 1.5px solid #c7dcfa; outline: none; color: #333333; transition: 0.2s; }
+        .input-group input:focus { border-color: #0077ff; box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.12); }
+        .toggle-password { position: absolute; right: 14px; top: 14px; cursor: pointer; font-size: 14px; color: #0077ff; }
+        .btn { width: 100%; padding: 13px; border-radius: 10px; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: none; background: #0077ff; color: #ffffff; transition: background 0.2s, transform 0.1s; }
+        .btn:hover { background: #0066dc; }
+        .btn:active { transform: scale(0.99); }
+        .switch-panel { text-align: center; margin-top: 22px; font-size: 13px; color: #666666; }
+        .switch-panel button { background: none; border: none; color: #0077ff; font-weight: 600; cursor: pointer; font-size: 13px; padding: 0 4px; }
+        .switch-panel button:hover { text-decoration: underline; }
+        .hidden { display: none; }
+
+        /* TOAST BİLDİRİM STİLLERİ */
+        #toast-container {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 380px;
+            width: 90%;
+        }
+
+        .toast {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px 18px;
+            background: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            animation: slideIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toast.hide {
+            animation: slideOut 0.3s forwards;
+        }
+
+        .toast-icon {
+            font-size: 20px;
+            margin-top: 2px;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .toast-message {
+            font-size: 12.5px;
+            line-height: 1.4;
+            color: #555555;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 14px;
+            color: #999999;
+            cursor: pointer;
+            padding: 2px;
+            line-height: 1;
+        }
+
+        .toast-close:hover { color: #333333; }
+
+        /* Hata Tipi */
+        .toast-error {
+            border-left: 5px solid #ff4757;
+        }
+        .toast-error .toast-icon { color: #ff4757; }
+        .toast-error .toast-title { color: #d63031; }
+
+        /* Başarı Tipi */
+        .toast-success {
+            border-left: 5px solid #2ed573;
+        }
+        .toast-success .toast-icon { color: #2ed573; }
+        .toast-success .toast-title { color: #20bf6b; }
+
+        @keyframes slideIn {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(120%); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Bildirim Kapsayıcısı -->
+    <div id="toast-container"></div>
+
+    <div class="auth-card">
+        <!-- LOGIN PANEL -->
+        <div id="loginSection">
+            <div class="auth-header">
+                <h2>Login</h2>
+                <p>Hesabınıza erişmek için bilgilerinizi girin.</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUsername" placeholder="user1" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••••••" required>
+                    <i class="fa-regular fa-eye-slash toggle-password" onclick="togglePassword('loginPassword', this)"></i>
+                </div>
+
+                <button type="submit" class="btn">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Login
+                </button>
+            </form>
+
+            <div class="switch-panel">
+                <span>Hesabın yok mu?</span>
+                <button type="button" onclick="showRegister()">Register ol</button>
+            </div>
+        </div>
+
+        <!-- REGISTER PANEL -->
+        <div id="registerSection" class="hidden">
+            <div class="auth-header">
+                <h2>Register</h2>
+                <p>Yeni bir hesap oluşturun.</p>
+            </div>
+
+            <form id="registerForm">
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" id="regUsername" placeholder="user4" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="regPassword" placeholder="••••••••••••" required>
+                    <i class="fa-regular fa-eye-slash toggle-password" onclick="togglePassword('regPassword', this)"></i>
+                </div>
+
+                <button type="submit" class="btn">
+                    <i class="fa-solid fa-user-plus"></i> Register
+                </button>
+            </form>
+
+            <div class="switch-panel">
+                <span>Zaten hesabın var mı?</span>
+                <button type="button" onclick="showLogin()">Giriş yap</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080';
+
+        if (localStorage.getItem('authToken')) {
+            window.location.href = 'userdashboard.html';
+        }
+
+        function showRegister() {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('registerSection').classList.remove('hidden');
+        }
+
+        function showLogin() {
+            document.getElementById('registerSection').classList.add('hidden');
+            document.getElementById('loginSection').classList.remove('hidden');
+        }
+
+        function togglePassword(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.replace("fa-eye-slash", "fa-eye");
+            } else {
+                input.type = "password";
+                icon.classList.replace("fa-eye", "fa-eye-slash");
+            }
+        }
+
+        // ŞIK TOAST BİLDİRİM FONKSİYONU
+        function showNotification(title, message, type = 'error') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            const iconClass = type === 'success' ? 'fa-solid fa-circle-check' : 'fa-solid fa-triangle-exclamation';
+
+            toast.innerHTML = `
+                <i class="${iconClass} toast-icon"></i>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('hide');
+                setTimeout(() => toast.remove(), 300);
+            }, 4500);
+        }
+
+        // Spring Boot Hata Ayrıştırıcı
+        async function handleApiError(response) {
+            try {
+                const errData = await response.json();
+                const title = `${errData.status || response.status} ${errData.error || 'Hata'}`;
+                const message = errData.message || 'Bir hata meydana geldi.';
+                showNotification(title, message, 'error');
+            } catch (e) {
+                const text = await response.text();
+                showNotification(`Hata (${response.status})`, text || 'Beklenmeyen bir hata oluştu.', 'error');
+            }
+        }
+
+        // LOGIN
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    const token = await response.text();
+                    localStorage.setItem('authToken', token.trim());
+                    localStorage.setItem('currentUser', username);
+                    showNotification('Başarılı', 'Giriş yapıldı, yönlendiriliyorsunuz...', 'success');
+                    setTimeout(() => window.location.href = 'userdashboard.html', 800);
+                } else {
+                    await handleApiError(response);
+                }
+            } catch (err) {
+                showNotification('Bağlantı Hatası', 'Sunucuya ulaşılamadı. Backend servisinin açık olduğundan emin olun.', 'error');
+            }
+        });
+
+        // REGISTER
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('regUsername').value;
+            const password = document.getElementById('regPassword').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    showNotification('Tebrikler!', 'Kayıt başarılı! Şimdi giriş yapabilirsiniz.', 'success');
+                    document.getElementById('registerForm').reset();
+                    showLogin();
+                } else {
+                    await handleApiError(response);
+                }
+            } catch (err) {
+                showNotification('Bağlantı Hatası', 'Sunucuya ulaşılamadı.', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
