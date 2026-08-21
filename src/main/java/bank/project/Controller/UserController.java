@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
+@CrossOrigin("*")
 @RestController
 public class UserController {
     //1-)bakiye görme

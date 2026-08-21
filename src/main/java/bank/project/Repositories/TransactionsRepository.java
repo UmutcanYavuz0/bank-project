@@ -15,5 +15,5 @@ public interface TransactionsRepository extends JpaRepository<Transaction,Long> 
 
 
     @Query(value = "select * from transactions where senderid=:userid or receiverid=:userid",nativeQuery = true)
-    Collection<Transaction>getTransactions(String userid);
+    Collection<Transaction> getTransactions(String userid);
 }

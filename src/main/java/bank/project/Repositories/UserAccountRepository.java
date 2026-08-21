@@ -25,6 +25,8 @@ public interface UserAccountRepository extends JpaRepository<UserAccount,Long> {
 
     Optional<UserAccount>findByUseridAndAccountno(String userid,String accountno);
 
+    Collection<UserAccount>findByUserid(String userid);
+
     @Transactional
     @Modifying
     @Query(value = "delete from useraccount where userid=:userid and accountno=:accountno",nativeQuery = true)

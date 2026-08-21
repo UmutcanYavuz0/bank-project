@@ -40,7 +40,7 @@ public class UserService {
         String password=user.getPassword();
 
         if(usersRepository.existsByUsername(username)){
-            return "böyle bir kullanıcı mevcut login olun";
+            throw new RuntimeException("böyle bir kullanıcı mevcut login olun");
         }
 
         //adding new user to users table
@@ -118,16 +118,41 @@ public class UserService {
     }
 
     public String openNewAccount(String username){
-        //open new account
+
         User user=getuser(username).get();
         String userid=String.valueOf(user.getId());
 
-        int numberofaccount=1+userAccountRepository.getAccounts(userid).toArray().length;
-        String accountno="accountno "+numberofaccount;
-        String iban="iban "+numberofaccount;
-        //userAccountRepository.add(userid,accountno,iban,0);
-        UserAccount save=new UserAccount(Integer.parseInt(userid),accountno,iban,0);
-        userAccountRepository.save(save);
+        // bu kişinin tüm hesaplarını getir
+        Collection<UserAccount>accountsdb=userAccountRepository.findByUserid(userid);
+        if(accountsdb.isEmpty()){
+            //account1 adında hrsap ekle çık
+        }
+
+        ArrayList<String>names=new ArrayList<>();
+
+        for (UserAccount caccount:accountsdb) {
+            names.add(caccount.getAccountno());
+        }
+
+        for (int i = 1; i < Integer.MAX_VALUE; i++) {
+            if(!names.contains("account "+i)){
+                UserAccount save=new UserAccount(Integer.parseInt(userid),"account "+i,"iban "+i,0);
+                userAccountRepository.save(save);
+                break;
+            }
+        }
+
+            //yen ihesabı ekle
+
+
+
+
+
+
+        //open new account
+
+
+
         return "yeni hesap açıldı";
 
 
@@ -211,6 +236,9 @@ public class UserService {
 
         User moneysender=getuser(username).get();
         String userid=String.valueOf(moneysender.getId());
+        if(userid.equals(String.valueOf(dtoMoneyTransefer.getReceiverid()))){
+            throw new RuntimeException("kendine para yollayamazsın");
+        }
 
         //para gönderenin hesabı var mı diye bakıyor
         if(!userAccountRepository.existsByUseridAndAccountno(String.valueOf(moneysender.getId()),dtoMoneyTransefer.getSenderaccountno())){
@@ -229,7 +257,8 @@ public class UserService {
                 String.valueOf(moneysender.getId()),dtoMoneyTransefer.getSenderaccountno()
         ).get();
         if(moneysendersaccount.getBalance()<dtoMoneyTransefer.getAmount()){
-            return "yetersiz bakiye";
+
+            throw new RuntimeException("yetersiz bakiye");
         }
 
         if(!usersRepository.existsByUsername(dtoMoneyTransefer.getReceiverusername())){
