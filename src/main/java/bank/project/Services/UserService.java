@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Random;
+
 @Service
 public class UserService {
     @Autowired
@@ -53,8 +55,11 @@ public class UserService {
 
 
         //openin new account and iban and set money to 0
+        Random r=new Random();
+        String iban=String.valueOf(r.nextInt(1000));
 
-        userAccountRepository.save(new UserAccount(userid,"account 1","iban 1",0));
+
+        userAccountRepository.save(new UserAccount(userid,"account 1",iban,0));
 
         return "registered succesfully";
     }
@@ -66,7 +71,7 @@ public class UserService {
             //generata token
             return jwtService.generateToken(username);
         }else{
-            return " username or password incorrect";
+            throw new RuntimeException(" username or password incorrect") ;
         }
     }
 
@@ -124,8 +129,14 @@ public class UserService {
 
         // bu kişinin tüm hesaplarını getir
         Collection<UserAccount>accountsdb=userAccountRepository.findByUserid(userid);
+        Random r=new Random();
         if(accountsdb.isEmpty()){
             //account1 adında hrsap ekle çık
+            String iban=String.valueOf(r.nextInt(1000));
+            UserAccount save=new UserAccount(Integer.parseInt(userid),"account 1",iban,0);
+            userAccountRepository.save(save);
+            return "yeni hesap açıldı";
+
         }
 
         ArrayList<String>names=new ArrayList<>();
@@ -134,9 +145,12 @@ public class UserService {
             names.add(caccount.getAccountno());
         }
 
+
+
         for (int i = 1; i < Integer.MAX_VALUE; i++) {
             if(!names.contains("account "+i)){
-                UserAccount save=new UserAccount(Integer.parseInt(userid),"account "+i,"iban "+i,0);
+                String iban=String.valueOf(r.nextInt(1000));
+                UserAccount save=new UserAccount(Integer.parseInt(userid),"account "+i,iban,0);
                 userAccountRepository.save(save);
                 break;
             }
@@ -232,74 +246,127 @@ public class UserService {
         // and receiver exists
         // and have account
         // then send the money
-        //decrase money from this account and increase money from receiver account
+        //decrase money from this account
+        //  increase money from receiver account
+        //transaction a kaydet
 
-        User moneysender=getuser(username).get();
-        String userid=String.valueOf(moneysender.getId());
-        if(userid.equals(String.valueOf(dtoMoneyTransefer.getReceiverid()))){
-            throw new RuntimeException("kendine para yollayamazsın");
+        //public class DtoMoneyTransefer {
+        //    private String senderaccountno;
+        //    private int receiverid;
+        //    private String receiveraccountno;
+        //    private int amount;
+        //    private String receiverusername;
+        User sender=getuser(username).get();
+        String senderid=String.valueOf(sender.getId());
+        String senderaccountno=dtoMoneyTransefer.getSenderaccountno();
+        String receiverid=String.valueOf(dtoMoneyTransefer.getReceiverid());
+        String receiveraccountno=dtoMoneyTransefer.getReceiveraccountno();
+        int amount= dtoMoneyTransefer.getAmount();
+        String receiverusername=dtoMoneyTransefer.getReceiverusername();
+
+
+
+        //looking for the sender hava account
+        if(!userAccountRepository.existsByUseridAndAccountno(senderid,senderaccountno)){
+            throw new RuntimeException("there is no sender account");
         }
-
-        //para gönderenin hesabı var mı diye bakıyor
-        if(!userAccountRepository.existsByUseridAndAccountno(String.valueOf(moneysender.getId()),dtoMoneyTransefer.getSenderaccountno())){
-            return "there is no sender account";
+        int senderamount=userAccountRepository.findByUseridAndAccountno(senderid,senderaccountno).get().getBalance();
+        //looking for the sender have enough money to send
+        if(senderamount<amount){
+            throw new RuntimeException("no enough money");
         }
-
-        if(!userAccountRepository.existsByUserid(String.valueOf(dtoMoneyTransefer.getReceiverid()))){
-            return "böyle bir alıcı yok";
+        //looking for the receiver exitsts or not
+        if(!userAccountRepository.existsByUserid(receiverid)){
+            throw new RuntimeException("there is no user");
         }
-        if(!userAccountRepository.existsByUseridAndAccountno(String.valueOf(dtoMoneyTransefer.getReceiverid()),
-                dtoMoneyTransefer.getReceiveraccountno())){
-            return "alıcı hesabı yok";
+        //looking for the receiver has acoount
+        if(!userAccountRepository.existsByUseridAndAccountno(receiverid,receiveraccountno)){
+            throw new RuntimeException("there is no receiver account");
         }
+        // if program is here then everything is ok ey just sende money
 
-        UserAccount moneysendersaccount=userAccountRepository.findByUseridAndAccountno(
-                String.valueOf(moneysender.getId()),dtoMoneyTransefer.getSenderaccountno()
-        ).get();
-        if(moneysendersaccount.getBalance()<dtoMoneyTransefer.getAmount()){
+        int sendernewbalance=senderamount-amount;
+        //decrase money from sender
+        userAccountRepository.updateBalance(String.valueOf(sendernewbalance),senderid,senderaccountno);
 
-            throw new RuntimeException("yetersiz bakiye");
-        }
+        //increase money from receiver
+        UserAccount receiveraccount=userAccountRepository.findByUseridAndAccountno(receiverid,receiveraccountno).get();
+        int receivernewbalance=receiveraccount.getBalance()+amount;
+        userAccountRepository.updateBalance(String.valueOf(receivernewbalance),receiverid,receiveraccountno);
 
-        if(!usersRepository.existsByUsername(dtoMoneyTransefer.getReceiverusername())){
-            return "böyle br alıcı yok";
-        }
-        User alıcıuser=getuser(dtoMoneyTransefer.getReceiverusername()).get();
-        UserAccount alıcıaccount=userAccountRepository.findByUseridAndAccountno(String.valueOf(dtoMoneyTransefer.getReceiverid()),dtoMoneyTransefer.getReceiveraccountno()).get();
-
-
-        //gönderenin hesabından düş
-        userAccountRepository.updateBalance(
-                String.valueOf(moneysendersaccount.getBalance()- dtoMoneyTransefer.getAmount()),
-                String.valueOf(moneysender.getId()),
-                moneysendersaccount.getAccountno()
-        );
-
-        //alıcıya ekle
-
-        userAccountRepository.updateBalance(
-                String.valueOf(alıcıaccount.getBalance()+dtoMoneyTransefer.getAmount()),
-                String.valueOf(alıcıuser.getId()),
-                dtoMoneyTransefer.getReceiveraccountno()
-        );
-        Transaction save=new Transaction(Integer.parseInt(userid),
-                dtoMoneyTransefer.getSenderaccountno(),
-                dtoMoneyTransefer.getReceiverid(),
-                dtoMoneyTransefer.getReceiveraccountno(),
-                dtoMoneyTransefer.getAmount(),
+        //save transaction to transactions table
+        //public Transaction(int senderid, String senderaccountno, int receiverid, String receiveraccountno, int amount, LocalDateTime createdAt) {
+        //        this.senderid = senderid;
+        //        this.senderaccountno = senderaccountno;
+        //        this.receiverid = receiverid;
+        //        this.receiveraccountno = receiveraccountno;
+        //        this.amount = amount;
+        //        this.createdAt = createdAt;
+        //    }
+        Transaction save=new Transaction(Integer.parseInt(senderid),
+                senderaccountno,
+                Integer.parseInt(receiverid),
+                receiveraccountno,
+                amount,
                 LocalDateTime.now());
         transactionsRepository.save(save);
 
 
-        return "para aktarıldı "+moneysender.getUsername()+" "+dtoMoneyTransefer.getSenderaccountno()+
-                " hesabından "+dtoMoneyTransefer.getReceiverusername()+" "+dtoMoneyTransefer.getReceiveraccountno()+
-                "hesabına "+dtoMoneyTransefer.getAmount()+" tl para aktarıldı";
+
+        return amount+" tl sended from "+senderid+" "+senderaccountno+" to "+receiverid+" "+receiveraccountno;
 
 
     }
 
+    public String moneytransferByIban(String username,String receiveriban){
+        //sender ıbın heasabı var mı
+        //para yeterlimi
+        //receiver ibanı doğru mu
+        //parayı yolla
+
+        return "";
+    }
     private Optional<User> getuser(String username){
         return  usersRepository.findByUsername(username);
+    }
+
+    public String pay(String username,String accountno,String ödemetutarı){
+
+
+        String userid=String.valueOf(getuser(username).get().getId());
+
+        int ödenecektutar=Integer.parseInt(ödemetutarı);
+        //hesap varsa
+        if(!userAccountRepository.existsByUseridAndAccountno(userid,accountno)){
+            throw new RuntimeException("there is no account");
+        }
+
+        UserAccount userAccount=userAccountRepository.findByUseridAndAccountno(userid,accountno).get();
+        int bakiye=userAccount.getBalance();
+
+        //para varsa
+        if(bakiye<ödenecektutar){
+            throw new RuntimeException("bakiye yetersiz");
+        }
+
+        int yenibakiye=bakiye-ödenecektutar;
+
+        //hesaptan para düşüldü
+        userAccountRepository.updateBalance(String.valueOf(yenibakiye),
+                userid,accountno);
+
+        //transactionlara kaydedildi
+        Transaction save=new Transaction(Integer.parseInt(userid),
+                accountno,
+                Integer.parseInt(userid),
+                "payment",
+                Integer.parseInt(ödemetutarı),
+                LocalDateTime.now());
+        transactionsRepository.save(save);
+        return "ödeme başarılı";
+
+
+
     }
 
 }

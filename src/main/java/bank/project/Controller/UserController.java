@@ -32,6 +32,14 @@ public class UserController {
         return userService.showbalance(username);
     }
 
+    @PostMapping("/user/pay")
+    public String pay(@RequestHeader("Authorization") String header,
+                      @RequestParam String amount,
+                      @RequestParam String accounto){
+        String username=getusernameFromToken(header);
+        return userService.pay(username,accounto,amount);
+    }
+
     @GetMapping("/user/get/transactions")
     public Collection<Transaction> showTransactions(@RequestHeader("Authorization") String header){
         String username=getusernameFromToken(header);
