@@ -10,7 +10,7 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
         body { background-color: #f0f4f9; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 30px 20px; }
-        .dashboard-card { background: #ffffff; width: 100%; max-width: 900px; border-radius: 20px; padding: 35px 40px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.07); }
+        .dashboard-card { background: #ffffff; width: 100%; max-width: 950px; border-radius: 20px; padding: 35px 40px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.07); }
         .dash-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #edf2f7; padding-bottom: 15px; margin-bottom: 25px; }
         .dash-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 25px; }
         .btn { padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: none; background: #0077ff; color: #ffffff; transition: 0.2s; }
@@ -26,9 +26,11 @@
         .btn-purple:hover { background: #732d91; }
         .btn-teal { background: #00b894; }
         .btn-teal:hover { background: #009475; }
+        .btn-pay { background: #e67e22; }
+        .btn-pay:hover { background: #d35400; }
         .action-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 14px; margin-bottom: 25px; }
         .action-box h4 { margin-bottom: 15px; color: #334155; font-size: 15px; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .input-group label { display: block; font-size: 11px; font-weight: 500; color: #64748b; margin-bottom: 4px; }
         .input-group input { width: 100%; padding: 10px 12px; border-radius: 8px; font-size: 13px; border: 1.5px solid #cbd5e1; outline: none; color: #333333; transition: 0.2s; }
         .input-group input:focus { border-color: #0077ff; box-shadow: 0 0 0 2px rgba(0, 119, 255, 0.12); }
@@ -45,64 +47,27 @@
         .section-title { color: #334155; margin: 25px 0 10px 0; font-size: 16px; }
         .hidden { display: none !important; }
 
-        /* TOAST BİLDİRİM STİLLERİ */
-        #toast-container {
-            position: fixed;
-            top: 25px;
-            right: 25px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-width: 380px;
-            width: 90%;
-        }
-
-        .toast {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 16px 18px;
-            background: #ffffff;
-            border-radius: 14px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-            animation: slideIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            transition: all 0.3s ease;
-        }
-
-        .toast.hide {
-            animation: slideOut 0.3s forwards;
-        }
-
+        /* TOAST BİLDİRİM */
+        #toast-container { position: fixed; top: 25px; right: 25px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; max-width: 380px; width: 90%; }
+        .toast { display: flex; align-items: flex-start; gap: 12px; padding: 16px 18px; background: #ffffff; border-radius: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); animation: slideIn 0.35s forwards; }
+        .toast.hide { animation: slideOut 0.3s forwards; }
         .toast-icon { font-size: 20px; margin-top: 2px; }
         .toast-content { flex: 1; }
         .toast-title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
         .toast-message { font-size: 12.5px; line-height: 1.4; color: #555555; }
-        .toast-close { background: none; border: none; font-size: 14px; color: #999999; cursor: pointer; line-height: 1; }
-        .toast-close:hover { color: #333333; }
-
+        .toast-close { background: none; border: none; font-size: 14px; color: #999999; cursor: pointer; }
         .toast-error { border-left: 5px solid #ff4757; }
         .toast-error .toast-icon { color: #ff4757; }
         .toast-error .toast-title { color: #d63031; }
-
         .toast-success { border-left: 5px solid #2ed573; }
         .toast-success .toast-icon { color: #2ed573; }
         .toast-success .toast-title { color: #20bf6b; }
-
-        @keyframes slideIn {
-            from { transform: translateX(120%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(120%); opacity: 0; }
-        }
+        @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
     </style>
 </head>
 <body>
 
-    <!-- Toast Bildirim Kapsayıcısı -->
     <div id="toast-container"></div>
 
     <div class="dashboard-card">
@@ -126,6 +91,9 @@
             <button class="btn btn-teal" onclick="togglePanel('addMoneyBox')">
                 <i class="fa-solid fa-money-bill-wave"></i> Para Ekle
             </button>
+            <button class="btn btn-pay" onclick="togglePanel('payMoneyBox')">
+                <i class="fa-solid fa-credit-card"></i> Pay (Ödeme Yap)
+            </button>
             <button class="btn btn-purple" onclick="togglePanel('transferMoneyBox')">
                 <i class="fa-solid fa-paper-plane"></i> Para Transferi
             </button>
@@ -137,7 +105,7 @@
             </button>
         </div>
 
-        <!-- 1. PARA EKLE PANELİ -->
+        <!-- 1. PARA EKLE -->
         <div id="addMoneyBox" class="action-box hidden">
             <h4><i class="fa-solid fa-money-bill-wave" style="color: #00b894;"></i> Hesaba Para Ekle</h4>
             <div class="form-grid">
@@ -153,35 +121,43 @@
             <button class="btn btn-teal" onclick="addMoney()">Parayı Yükle</button>
         </div>
 
-        <!-- 2. PARA TRANSFERİ PANELİ -->
+        <!-- 2. PAY -->
+        <div id="payMoneyBox" class="action-box hidden">
+            <h4><i class="fa-solid fa-credit-card" style="color: #e67e22;"></i> Ödeme Yap (Pay)</h4>
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>Hesap No (accounto)</label>
+                    <input type="text" id="payAccountNo" placeholder="Örn: accountno 1">
+                </div>
+                <div class="input-group">
+                    <label>Ödeme Miktarı (amount)</label>
+                    <input type="number" id="payAmount" placeholder="Örn: 50" min="1">
+                </div>
+            </div>
+            <button class="btn btn-pay" onclick="payMoney()">Ödemeyi Onayla</button>
+        </div>
+
+        <!-- 3. PARA TRANSFERİ (IBAN ALANLI) -->
         <div id="transferMoneyBox" class="action-box hidden">
             <h4><i class="fa-solid fa-paper-plane" style="color: #8e44ad;"></i> Para Transferi Yap</h4>
             <div class="form-grid">
                 <div class="input-group">
-                    <label>Gönderen Hesap No</label>
+                    <label>Gönderen Hesap No (senderaccountno)</label>
                     <input type="text" id="trSenderAcc" placeholder="Örn: accountno 1">
                 </div>
                 <div class="input-group">
-                    <label>Alıcı ID</label>
-                    <input type="number" id="trReceiverId" placeholder="Örn: 2">
+                    <label>Alıcı IBAN No (receiveriban)</label>
+                    <input type="text" id="trReceiverIban" placeholder="TR000000000000000000000000">
                 </div>
                 <div class="input-group">
-                    <label>Alıcı Hesap No</label>
-                    <input type="text" id="trReceiverAcc" placeholder="Örn: accountno 2">
-                </div>
-                <div class="input-group">
-                    <label>Alıcı Kullanıcı Adı</label>
-                    <input type="text" id="trReceiverUser" placeholder="Örn: user2">
-                </div>
-                <div class="input-group">
-                    <label>Gönderilecek Miktar</label>
-                    <input type="number" id="trAmount" placeholder="Örn: 50" min="1">
+                    <label>Gönderilecek Miktar (amount)</label>
+                    <input type="number" id="trAmount" placeholder="Örn: 250" min="1">
                 </div>
             </div>
             <button class="btn btn-purple" onclick="transferMoney()">Transferi Gerçekleştir</button>
         </div>
 
-        <!-- 3. HESAP KAPATMA PANELİ -->
+        <!-- 4. HESAP KAPATMA -->
         <div id="closeAccountBox" class="action-box hidden" style="border-color: #ffb8b8; background: #fff8f8;">
             <h4 style="color: #d63031;"><i class="fa-solid fa-ban"></i> Hesap Kapat</h4>
             <div class="input-group" style="margin-bottom: 12px;">
@@ -224,12 +200,10 @@
             document.getElementById(panelId).classList.toggle('hidden');
         }
 
-        // BİLDİRİM GÖSTERME (Toast)
         function showNotification(title, message, type = 'error') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = `toast toast-${type}`;
-            
             const iconClass = type === 'success' ? 'fa-solid fa-circle-check' : 'fa-solid fa-triangle-exclamation';
 
             toast.innerHTML = `
@@ -242,33 +216,31 @@
             `;
 
             container.appendChild(toast);
-
             setTimeout(() => {
                 toast.classList.add('hide');
                 setTimeout(() => toast.remove(), 300);
             }, 4500);
         }
 
-        // Spring Boot Hata JSON Ayrıştırıcı
         async function handleApiError(response) {
             if (response.status === 401 || response.status === 403) {
-                showNotification('Oturum Hatası', 'Oturum süreniz doldu. Lütfen tekrar giriş yapın.', 'error');
+                showNotification('Oturum Hatası', 'Oturum süreniz doldu. Tekrar giriş yapın.', 'error');
                 setTimeout(logout, 1500);
                 return;
             }
 
             try {
                 const errData = await response.json();
-                const title = `${errData.status || response.status} ${errData.error || 'İşlem Başarısız'}`;
-                const message = errData.message || 'Beklenmeyen bir hata meydana geldi.';
+                const title = `${errData.status || response.status} ${errData.error || 'Hata'}`;
+                const message = errData.message || 'İşlem gerçekleştirilemedi.';
                 showNotification(title, message, 'error');
             } catch (e) {
                 const text = await response.text();
-                showNotification(`Hata (${response.status})`, text || 'İşlem gerçekleştirilemedi.', 'error');
+                showNotification(`Hata (${response.status})`, text || 'Sunucu hatası oluştu.', 'error');
             }
         }
 
-        // 1. BAKİYELERİ GETİR
+        // BAKİYELERİ GETİR
         async function fetchBalances() {
             const container = document.getElementById('accountsContainer');
             try {
@@ -291,7 +263,7 @@
                             <span class="acc-balance">${acc.balance} ₺</span>
                         </div>
                     `).join('');
-                    showNotification('Güncellendi', 'Hesap listesi ve bakiyeler yüklendi.', 'success');
+                    showNotification('Güncellendi', 'Hesap listesi yüklendi.', 'success');
                 } else {
                     await handleApiError(response);
                 }
@@ -300,7 +272,7 @@
             }
         }
 
-        // 2. YENİ HESAP AÇ
+        // HESAP AÇ
         async function openNewAccount() {
             try {
                 const response = await fetch(`${API_BASE}/user/open/newaccount`, {
@@ -310,7 +282,7 @@
 
                 if (response.ok) {
                     const msg = await response.text();
-                    showNotification('Başarılı', msg || 'Yeni hesap başarıyla oluşturuldu.', 'success');
+                    showNotification('Başarılı', msg || 'Yeni hesap açıldı.', 'success');
                     fetchBalances();
                 } else {
                     await handleApiError(response);
@@ -320,13 +292,13 @@
             }
         }
 
-        // 3. PARA EKLE
+        // PARA EKLE
         async function addMoney() {
             const accountNo = document.getElementById('addMoneyAccountNo').value.trim();
             const money = document.getElementById('addMoneyAmount').value;
 
             if (!accountNo || !money) {
-                showNotification('Eksik Bilgi', 'Lütfen hesap numarası ve miktar alanlarını doldurun.', 'error');
+                showNotification('Eksik Bilgi', 'Hesap no ve miktar girin.', 'error');
                 return;
             }
 
@@ -340,7 +312,7 @@
 
                 if (response.ok) {
                     const msg = await response.text();
-                    showNotification('Bakiye Eklendi', msg || 'Para yatırma işlemi başarılı.', 'success');
+                    showNotification('Bakiye Eklendi', msg || 'Para yüklendi.', 'success');
                     document.getElementById('addMoneyAccountNo').value = '';
                     document.getElementById('addMoneyAmount').value = '';
                     document.getElementById('addMoneyBox').classList.add('hidden');
@@ -353,25 +325,54 @@
             }
         }
 
-        // 4. PARA TRANSFERİ
+        // PAY
+        async function payMoney() {
+            const accountNo = document.getElementById('payAccountNo').value.trim();
+            const amount = document.getElementById('payAmount').value;
+
+            if (!accountNo || !amount) {
+                showNotification('Eksik Bilgi', 'Lütfen hesap no ve ödeme miktarını girin.', 'error');
+                return;
+            }
+
+            const url = `${API_BASE}/user/pay?accounto=${encodeURIComponent(accountNo)}&amount=${encodeURIComponent(amount)}`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    const msg = await response.text();
+                    showNotification('Ödeme Başarılı', msg || 'Ödeme işlemi tamamlandı.', 'success');
+                    document.getElementById('payAccountNo').value = '';
+                    document.getElementById('payAmount').value = '';
+                    document.getElementById('payMoneyBox').classList.add('hidden');
+                    fetchBalances();
+                } else {
+                    await handleApiError(response);
+                }
+            } catch (err) {
+                showNotification('Bağlantı Hatası', 'İstek sunucuya ulaştırılamadı.', 'error');
+            }
+        }
+
+        // PARA TRANSFERİ (IBAN GÖNDERİMİ)
         async function transferMoney() {
             const senderaccountno = document.getElementById('trSenderAcc').value.trim();
-            const receiverid = document.getElementById('trReceiverId').value.trim();
-            const receiveraccountno = document.getElementById('trReceiverAcc').value.trim();
-            const receiverusername = document.getElementById('trReceiverUser').value.trim();
-            const amount = document.getElementById('trAmount').value;
+            const receiveriban = document.getElementById('trReceiverIban').value.trim();
+            const amount = document.getElementById('trAmount').value.trim();
 
-            if (!senderaccountno || !receiverid || !receiveraccountno || !receiverusername || !amount) {
-                showNotification('Eksik Bilgi', 'Lütfen tüm transfer alanlarını eksiksiz doldurun.', 'error');
+            if (!senderaccountno || !receiveriban || !amount) {
+                showNotification('Eksik Bilgi', 'Lütfen gönderen hesap no, alıcı IBAN ve miktarı girin.', 'error');
                 return;
             }
 
             const payload = {
-                senderaccountno,
-                receiverid: Number(receiverid),
-                receiveraccountno,
-                amount: Number(amount),
-                receiverusername
+                senderaccountno: senderaccountno,
+                receiveriban: receiveriban,
+                amount: amount
             };
 
             try {
@@ -388,9 +389,7 @@
                     const msg = await response.text();
                     showNotification('Transfer Başarılı', msg || 'Transfer tamamlandı.', 'success');
                     document.getElementById('trSenderAcc').value = '';
-                    document.getElementById('trReceiverId').value = '';
-                    document.getElementById('trReceiverAcc').value = '';
-                    document.getElementById('trReceiverUser').value = '';
+                    document.getElementById('trReceiverIban').value = '';
                     document.getElementById('trAmount').value = '';
                     document.getElementById('transferMoneyBox').classList.add('hidden');
                     fetchBalances();
@@ -402,22 +401,18 @@
             }
         }
 
-        // 5. HESAP HAREKETLERİ
+        // HESAP HAREKETLERİ
         async function fetchTransactions() {
             const container = document.getElementById('transactionsContainer');
 
             try {
                 const response = await fetch(`${API_BASE}/user/get/transactions`, {
                     method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
                 });
 
                 if (response.ok) {
                     const data = await response.json();
-
                     if (!data || data.length === 0) {
                         container.className = 'empty-state';
                         container.innerHTML = 'Herhangi bir hesap hareketi bulunamadı.';
@@ -425,26 +420,20 @@
                     }
 
                     const keys = Object.keys(data[0]);
-
                     let tableHtml = `
                         <div class="table-responsive">
                             <table>
                                 <thead>
-                                    <tr>
-                                        ${keys.map(k => `<th>${k.toUpperCase()}</th>`).join('')}
-                                    </tr>
+                                    <tr>${keys.map(k => `<th>${k.toUpperCase()}</th>`).join('')}</tr>
                                 </thead>
                                 <tbody>
                                     ${data.map(item => `
-                                        <tr>
-                                            ${keys.map(k => `<td>${item[k] !== undefined && item[k] !== null ? item[k] : '-'}</td>`).join('')}
-                                        </tr>
+                                        <tr>${keys.map(k => `<td>${item[k] !== undefined && item[k] !== null ? item[k] : '-'}</td>`).join('')}</tr>
                                     `).join('')}
                                 </tbody>
                             </table>
                         </div>
                     `;
-
                     container.className = '';
                     container.innerHTML = tableHtml;
                     showNotification('Yüklendi', 'Hesap hareketleri güncellendi.', 'success');
@@ -456,11 +445,11 @@
             }
         }
 
-        // 6. HESAP KAPAT
+        // HESAP KAPAT
         async function closeAccount() {
             const accountNo = document.getElementById('closeAccountInput').value.trim();
             if (!accountNo) {
-                showNotification('Eksik Bilgi', 'Kapatılacak hesap adını/numarasını girin.', 'error');
+                showNotification('Eksik Bilgi', 'Kapatılacak hesap numarasını girin.', 'error');
                 return;
             }
 
@@ -472,7 +461,7 @@
 
                 if (response.ok) {
                     const msg = await response.text();
-                    showNotification('Hesap Kapatıldı', msg || 'Hesap başarıyla kapatıldı.', 'success');
+                    showNotification('Hesap Kapatıldı', msg || 'Hesap kapatıldı.', 'success');
                     document.getElementById('closeAccountInput').value = '';
                     document.getElementById('closeAccountBox').classList.add('hidden');
                     fetchBalances();
