@@ -3,6 +3,7 @@ package bank.project.Controller;
 import bank.project.Dto.AccountNoAndBalance;
 import bank.project.Dto.AccountNoAndIban;
 import bank.project.Dto.DtoMoneyTransefer;
+import bank.project.Dto.DtoMoneyTransferByIban;
 import bank.project.Entities.Transaction;
 import bank.project.Jwt.JwtService;
 import bank.project.Services.UserService;
@@ -77,10 +78,10 @@ public class UserController {
     }
     @PostMapping("/transfer/money")
     public String moneytransefer(@RequestHeader("Authorization") String header,
-                              @RequestBody DtoMoneyTransefer dtoMoneyTransefer){
+                              @RequestBody DtoMoneyTransferByIban dto){
         String username=getusernameFromToken(header);
 
-        return userService.moneytransefer(username,dtoMoneyTransefer);
+        return userService.moneytransferByIban(username,dto.getReceiveriban(),dto.getSenderaccountno(),dto.getAmount());
 
     }
 

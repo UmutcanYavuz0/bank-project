@@ -318,13 +318,67 @@ public class UserService {
 
     }
 
-    public String moneytransferByIban(String username,String receiveriban){
-        //sender ıbın heasabı var mı
-        //para yeterlimi
-        //receiver ibanı doğru mu
+    public String moneytransferByIban(String username,String receiveriban,String senderaccountno,int amount){
+        //sender  heasabı var mı-->existsbyiban
+        //para yeterlimi-->username in accountgetir bak
+        //receiver ibanı doğru mu-->exists by iban
         //parayı yolla
+        //sender dan parayı düş
+        //receiver e ekle
+        //transaction a kaydet
+        User sender=getuser(username).get();
 
-        return "";
+        //looking for does sender have account
+        if(!userAccountRepository.existsByUseridAndAccountno(String.valueOf(sender.getId()),senderaccountno)){
+            throw new RuntimeException("sender doesnt have th,s account");
+        }
+        UserAccount senderaccount=userAccountRepository.findByUseridAndAccountno(String.valueOf(sender.getId()),senderaccountno).get();
+
+        //looking for has enough money
+        int senderbalance= senderaccount.getBalance();
+        if(senderbalance<amount){
+            throw new RuntimeException("sender doesnt have enough money");
+        }
+
+        //looking for receiver iban exists
+        if(!userAccountRepository.existsByIban(receiveriban)){
+            throw new RuntimeException("receiver account not exists");
+        }
+        //everything is okey ,send money
+
+        //decrase money from sender
+        String sendernewbalance=String.valueOf(senderaccount.getBalance()-amount);
+        //commit
+        userAccountRepository.updateBalance(sendernewbalance,String.valueOf(sender.getId()),senderaccount.getAccountno());
+
+        //increase money from receiver
+        UserAccount receiveraccount=userAccountRepository.findByIban(receiveriban).get();
+        String receiveruserid=String.valueOf(receiveraccount.getUserid());
+        String receivernewbalance=String.valueOf(amount+receiveraccount.getBalance());
+        userAccountRepository.updateBalance(receivernewbalance,receiveruserid,receiveraccount.getAccountno());
+
+        //save to transactions table
+        //public Transaction(int senderid, String senderaccountno, int receiverid, String receiveraccountno, int amount, LocalDateTime createdAt) {
+        //        this.senderid = senderid;
+        //        this.senderaccountno = senderaccountno;
+        //        this.receiverid = receiverid;
+        //        this.receiveraccountno = receiveraccountno;
+        //        this.amount = amount;
+        //        this.createdAt = createdAt;
+        //    }
+        Transaction save=new Transaction(
+                (int)sender.getId(),
+                senderaccount.getAccountno(),
+                receiveraccount.getUserid(),
+                receiveraccount.getAccountno(),
+                amount,
+                LocalDateTime.now()
+        );
+        transactionsRepository.save(save);
+
+
+        return amount+" tl transfered from "+senderaccount.getAccountno()+" to "+receiveraccount.getAccountno();
+
     }
     private Optional<User> getuser(String username){
         return  usersRepository.findByUsername(username);
