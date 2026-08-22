@@ -48,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
             boolean valid = jwtService.isTokenValid(jwt, userDetails);
             System.out.println(">>> Token gecerli mi: " + valid);   // EKLE
 
-            if (valid) {
+            /*if (valid) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities()
                 );
@@ -57,6 +57,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
                 System.out.println(">>> SecurityContext'e yazildi!");   // EKLE
             }else {
                 throw new RuntimeException(" token geçersiz");
+            }*/
+            if (valid) {
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities()
+                );
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+                System.out.println(">>> SecurityContext'e yazildi! Rol: " + userDetails.getAuthorities());
             }
         }
 

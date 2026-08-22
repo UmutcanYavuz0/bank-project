@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -24,13 +25,20 @@ public class User implements UserDetails {
 
     private String password;
 
-    public User(String username, String password) {
+    private String role;
+    public User(String username, String password,String role) {
         this.username = username;
         this.password = password;
+        this.role=role;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        String roleName = this.role;
+        // Eğer veritabanındaki değerde "ROLE_" ön eki yoksa otomatik ekle
+        if (roleName != null && !roleName.startsWith("ROLE_")) {
+            roleName = "ROLE_" + roleName;
+        }
+        return List.of(new SimpleGrantedAuthority(roleName));
     }
 }

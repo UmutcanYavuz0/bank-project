@@ -31,6 +31,8 @@ public class UserService {
     private UsersRepository usersRepository;
     @Autowired
     private JwtService jwtService;
+    //para yollarken açıklamada yazalım bunuda ekle
+    //
 
     public String register(DtoUser user){
         //if user not exists
@@ -47,7 +49,7 @@ public class UserService {
 
         //adding new user to users table
         //usersRepository.reigster(username,password);
-        usersRepository.save(new User(username,password));
+        usersRepository.save(new User(username,password,"USER"));
 
 
         long id=usersRepository.findByUsernameAndPassword(username,password).get().getId();
@@ -69,7 +71,7 @@ public class UserService {
         String password=user.getPassword();
         if(usersRepository.existsByUsernameAndPassword(username,password)){
             //generata token
-            return jwtService.generateToken(username);
+            return jwtService.generateToken(username,"USER");
         }else{
             throw new RuntimeException(" username or password incorrect") ;
         }
@@ -380,6 +382,7 @@ public class UserService {
         return amount+" tl transfered from "+senderaccount.getAccountno()+" to "+receiveraccount.getAccountno();
 
     }
+
     private Optional<User> getuser(String username){
         return  usersRepository.findByUsername(username);
     }
